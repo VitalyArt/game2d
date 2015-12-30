@@ -96,17 +96,20 @@
                     if(plane[i].angle >= 360)
                         plane[i].angle = 360 - plane[i].angle;
                     
+                    /*
                     // Обрабатываем столкновения
-                    if (
-                        i != myID
-                        && plane[myID].x <= (plane[i].x + plane[i].width)
-                        && plane[i].x <= (plane[myID].x + plane[myID].width)
-                        && plane[myID].y <= (plane[i].y + plane[i].width)
-                        && plane[i].y <= (plane[myID].y + plane[myID].width)
-                    ) {
-                        ++monstersCaught;
-                        reset();
+                    if(typeof plane[myID] != undefined) {
+                        if (
+                            i != myID
+                            && plane[myID].x <= (plane[i].x + plane[i].width)
+                            && plane[i].x <= (plane[myID].x + plane[myID].width)
+                            && plane[myID].y <= (plane[i].y + plane[i].width)
+                            && plane[i].y <= (plane[myID].y + plane[myID].width)
+                        ) {
+                            // Тут код для обработки столкновений
+                        }
                     }
+                    */
                 }
                 
                 // Score
