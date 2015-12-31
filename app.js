@@ -1,5 +1,6 @@
 var PORT = 80;
 
+var clients = [];
 var options = {
 //    'log level': 0
 };
@@ -19,6 +20,7 @@ io.sockets.on('connection', function (client) {
     client.on('updateServer', function (message) {
         data = {
             id: client.id,
+            name: clients[client.id],
             speed: 256, // movement in pixels per second
             angle: message.angle,
             x: message.x,
@@ -29,10 +31,12 @@ io.sockets.on('connection', function (client) {
         client.broadcast.emit('updateClient', data);
     });
     
-    client.on('auth', function (message) {
+    client.on('auth', function (name) {
+        clients[client.id] = name;
         client.emit('auth', client.id);
     });
     client.on('disconnect', function () {
+        delete clients[client.id]
         client.broadcast.emit('delPlane', client.id);
     });
 });
