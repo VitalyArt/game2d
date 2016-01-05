@@ -14,7 +14,9 @@ var io = require('socket.io').listen(server, options);
 
 app.use('/', express.static(__dirname + '/static'));
 
-io.sockets.on('connection', function (client) { 
+io.sockets.on('connection', function (client) {
+    console.log(client.id);
+    
     client.on('updateServer', function (message) {
         data = {
             id: client.id,
@@ -32,13 +34,11 @@ io.sockets.on('connection', function (client) {
     client.on('auth', function (name) {
         clients[client.id] = name;
         client.emit('auth', client.id);
-        console.log('Client "' + name + '" connected.');
     });
     client.on('disconnect', function () {
         delete clients[client.id]
         client.broadcast.emit('delPlane', client.id);
-        console.log('Client "' + name + '" disconnected.');
     });
 });
 
-console.log('Listen ' + PORTs + ' port');
+console.log('Listen 80 port');
