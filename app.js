@@ -35,10 +35,10 @@ io.sockets.on('connection', function (client) {
         console.log('Client "' + name + '" connected.');
     });
     client.on('disconnect', function () {
-        delete clients[client.id]
         client.broadcast.emit('delPlane', client.id);
-        console.log('Client "' + name + '" disconnected.');
+        console.log('Client "' + clients[client.id] + '" disconnected.');
+        delete clients[client.id];
     });
 });
 
-console.log('Listen ' + PORTs + ' port');
+console.log('Listen ' + PORT + ' port');
