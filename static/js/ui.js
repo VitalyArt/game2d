@@ -19,10 +19,9 @@ socket.on('connect', function () {
 
     });
 
-    $(window).on('planesCountChange', function(id, plane){
+    $(window).on('planesCountChange', function(event, plane){
         var planesCount = 0;
         var li = '';
-        console.log(id);
 
         for(var i in plane) {
             ++planesCount;

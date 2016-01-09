@@ -108,7 +108,7 @@ socket.on('connect', function () {
         }
         
         if(oldCount != planesCount) {
-            $(window).trigger('planesCountChange', [plane, 4]);
+            $(window).trigger('planesCountChange', plane);
             oldCount = planesCount;
         }
         
