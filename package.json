@@ -2,9 +2,9 @@
   "name": "game2d",
   "version": "0.2",
   "dependencies": {
-    "express": "x",
-    "socket.io": "x",
-    "http": "",
+    "express": "3.1.x",
+    "socket.io": "1.4.x",
+    "http": "0.0.x",
   },
   "engines": {
     "node": "0.10.x",
