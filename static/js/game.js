@@ -27,13 +27,11 @@ socket.on('connect', function () {
     bgImage.src = "images/background.png";
     planeImage.src = "images/plane.png";
     
-    var plane = [];
+    var plane = {};
     var myID = '';
+    var planesCount = 0;
+    var oldCount = 0;
     
-    $('#submit').on('click', function(){
-        username = $('input#username').val();
-        socket.emit('auth', username);
-    });
     socket.on('auth', function (id) {
         myID = id;
         plane[myID] = {
@@ -46,10 +44,6 @@ socket.on('connect', function () {
             height: 94/4
         };
         socket.emit('updateServer', plane[myID]);
-        
-        $('.sidebar-form').hide();
-        $('.user-panel').show();
-        $('p#username').html(username);
     });
     socket.on('updateClient', function (data) {
         plane[data.id] = {
@@ -78,7 +72,6 @@ socket.on('connect', function () {
         for(var i in plane) {
             ++planesCount;
 
-            li = li + '<li><a href="#"><i class="fa fa-users text-aqua"></i> ' + plane[i].name + '</a></li>';
             if (planeReady) {
                 ctx.save();
                 ctx.fillStyle = "rgb(250, 250, 250)";
@@ -114,15 +107,17 @@ socket.on('connect', function () {
             */
         }
         
-        $('#clients').find('#list').html(li);
-        $('span.label.label-warning').text(planesCount);
+        if(oldCount != planesCount) {
+            $(window).trigger('planesCountChange', [plane, 4]);
+            oldCount = planesCount;
+        }
         
         // Score
         ctx.fillStyle = "rgb(250, 250, 250)";
         ctx.font = "24px Helvetica";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText("Игроков: " + planesCount , 32, 32);
+        ctx.fillText("Players: " + planesCount , 32, 32);
     }
     
     // Update game objects

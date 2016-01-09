@@ -1,6 +1,6 @@
 var PORT = 80;
 
-var clients = [];
+var clients = {};
 var options = {
 //    'log level': 0
 };
