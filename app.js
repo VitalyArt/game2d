@@ -1,4 +1,4 @@
-var PORT = 80;
+var PORT = process.env.PORT || 80;
 
 var clients = {};
 var options = {

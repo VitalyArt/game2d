@@ -1,4 +1,6 @@
 # 2D Game Plane (Multiplayer)
+###https://game2d.herokuapp.com/
+
 Install game
 ```sh
 git clone https://github.com/VitalyArt/game2d.git
@@ -13,9 +15,4 @@ var PORT = 80;
 Run in Terminal
 ```sh
 node app.js
-```
-
-If port < 100 then
-```sh
-sudo node app.js
 ```
