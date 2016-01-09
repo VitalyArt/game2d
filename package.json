@@ -1,0 +1,28 @@
+{
+  "name": "game2d",
+  "version": "1.0.0",
+  "description": "game2d",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.13.3",
+    "http": "^0.0.0",
+    "socket.io": "^1.4.3"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VitalyArt/game2d.git"
+  },
+  "keywords": [
+    "game",
+    "javascript",
+    "canvas",
+    "2d"
+  ],
+  "author": "Vitaly Artemev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VitalyArt/game2d/issues"
+  },
+  "homepage": "https://github.com/VitalyArt/game2d#readme"
+}
