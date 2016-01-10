@@ -62,7 +62,7 @@ socket.on('connect', function () {
     });
     
     function render() {
-        var li = '';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         planesCount = 0;
         
         if (bgReady) {
@@ -84,12 +84,6 @@ socket.on('connect', function () {
                 ctx.drawImage(planeImage, -(plane[i].width/2), -(plane[i].height/2), plane[i].width, plane[i].height);
                 ctx.restore();
             }
-
-            if(plane[i].angle < 0)
-                plane[i].angle = plane[i].angle + 360;
-
-            if(plane[i].angle >= 360)
-                plane[i].angle = 360 - plane[i].angle;
             
             /*
             // Обрабатываем столкновения
@@ -139,9 +133,6 @@ socket.on('connect', function () {
             if(plane[myID].y > canvas.height + plane[myID].height)
                 plane[myID].y = -plane[myID].height;
 
-            plane[myID].y -= plane[myID].speed * modifier * Math.sin(plane[myID].angle * Math.PI / 180);
-            plane[myID].x -= plane[myID].speed * modifier * Math.cos(plane[myID].angle * Math.PI / 180);
-
             if (38 in keysDown) { // Player holding up
                 plane[myID].y -= plane[myID].speed * modifier;
             }
@@ -149,12 +140,22 @@ socket.on('connect', function () {
                 plane[myID].y += plane[myID].speed * modifier;
             }
             if (37 in keysDown) { // Player holding left
-                plane[myID].angle -= 3;
+                plane[myID].angle -= 0.8 * plane[myID].speed * modifier;
             }
             if (39 in keysDown) { // Player holding right
-                plane[myID].angle += 3;
+                plane[myID].angle += 0.8 * plane[myID].speed * modifier;
                 //plane[i].x += plane[i].speed * modifier;
             }
+
+            if(plane[myID].angle < 0)
+                plane[myID].angle = 360 + plane[myID].angle;
+
+            if(plane[myID].angle >= 360)
+                plane[myID].angle = 360 - plane[myID].angle;
+
+            plane[myID].y -= plane[myID].speed * modifier * Math.sin(plane[myID].angle * Math.PI / 180);
+            plane[myID].x -= plane[myID].speed * modifier * Math.cos(plane[myID].angle * Math.PI / 180);
+
             data = {
                 speed: 256, // movement in pixels per second
                 angle: plane[myID].angle,
@@ -172,7 +173,6 @@ socket.on('connect', function () {
         var now = Date.now();
         var delta = now - then;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height); 
         render();
         update(delta / 1000);
 
