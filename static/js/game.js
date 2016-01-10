@@ -169,8 +169,8 @@ socket.on('connect', function () {
             // Стреляем по нажатию на пробел
             if (32 in keysDown) {
                 if(Date.now() - myBulletLast > 200) {
-                    var x = planesArray[myID].x + planesArray[myID].width/2 + (planesArray[myID].width - 6)*Math.cos(planesArray[myID].angle * Math.PI / 180);
-                    var y = planesArray[myID].y + planesArray[myID].height/2 + (planesArray[myID].height + 24)*Math.sin(planesArray[myID].angle * Math.PI / 180);
+                    var x = planesArray[myID].x + planesArray[myID].width/2 - (planesArray[myID].width - 6)/2*Math.cos(planesArray[myID].angle * Math.PI / 180);
+                    var y = planesArray[myID].y + planesArray[myID].height/2 - (planesArray[myID].height + 24)/2*Math.sin(planesArray[myID].angle * Math.PI / 180);
                     myBulletsArray[myBulletsCount++] = {
                         id: myID,
                         speed: 1024,
