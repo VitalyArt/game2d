@@ -68,10 +68,13 @@ socket.on('connect', function () {
         };
     });
     
-    socket.on('client plane delete', function (id) {
+    socket.on('client plane explode', function (id) {
+        console.log(planesArray[id].name + ' подбит.');
+        if(id == myID)
+            delete myID;
         delete planesArray[id];
     });
-    
+
     function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         planesCount = 0;
@@ -166,7 +169,7 @@ socket.on('connect', function () {
                     var x = planesArray[myID].x + planesArray[myID].width/2 - (planesArray[myID].width - 6)/2*Math.cos(planesArray[myID].angle * Math.PI / 180);
                     var y = planesArray[myID].y + planesArray[myID].height/2 - (planesArray[myID].height + 24)/2*Math.sin(planesArray[myID].angle * Math.PI / 180);
                     myBulletsArray[myBulletsCount++] = {
-                        player: myID,
+                        id: myID,
                         speed: 1024,
                         angle: planesArray[myID].angle,
                         x: x,
@@ -217,6 +220,8 @@ socket.on('connect', function () {
                 ) {
                     // UPD: Желательно ещё учитывать угол наклона самолёта
                     console.log('Вы убили ' + planesArray[plane].name);
+                    socket.emit('server plane explode', plane);
+                    delete planesArray[plane];
                 }
             }
         }

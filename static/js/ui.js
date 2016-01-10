@@ -13,6 +13,14 @@ socket.on('connect', function () {
         $('.user-panel').show();
         $('p#username').html(username);
     });
+    
+    socket.on('client plane explode', function (id) {
+        if(id == myID) {
+            $('.sidebar-form').show();
+            $('.user-panel').hide();
+            delete myID;
+        }
+    });
 
     // Disconnect client
     socket.on('client plane delete', function (id) {
