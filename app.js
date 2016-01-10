@@ -37,12 +37,12 @@ io.sockets.on('connection', function (client) {
         client.broadcast.emit('client bullet update', bullet);
     });
     client.on('server plane explode', function (id) {
-        client.broadcast.emit('client plane explode', id);
+        io.sockets.emit('client plane explode', id);
         console.log('Client "' + clients[id] + '" exploded.');
         delete clients[id];
     });
     client.on('disconnect', function () {
-        client.broadcast.emit('client plane delete', client.id);
+        io.sockets.emit('client plane delete', client.id);
         console.log('Client "' + clients[client.id] + '" disconnected.');
         delete clients[client.id];
     });

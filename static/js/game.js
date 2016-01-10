@@ -13,6 +13,7 @@ socket.on('connect', function () {
     var myID = '';
     var planesCount = 0;
     var oldCount = 0;
+    var youDead = false;
 
     addEventListener("keydown", function (e) {
         keysDown[e.keyCode] = true;
@@ -69,6 +70,9 @@ socket.on('connect', function () {
     });
     
     socket.on('client plane explode', function (id) {
+        if(id == myID)
+            youDead =true;
+
         console.log(planesArray[id].name + ' подбит.');
         delete planesArray[id];
     });
@@ -78,14 +82,17 @@ socket.on('connect', function () {
         delete planesArray[id];
     });
 
+    // Рендер холста
     function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         planesCount = 0;
         
+        // Рисуем задний фон
         if (bgReady) {
             ctx.drawImage(bgImage, 0, 0);
         }
         
+        // Рисуем самолеты
         for(var i in planesArray) {
             ++planesCount;
 
@@ -101,23 +108,9 @@ socket.on('connect', function () {
                 ctx.drawImage(planeImage, -(planesArray[i].width/2), -(planesArray[i].height/2), planesArray[i].width, planesArray[i].height);
                 ctx.restore();
             }
-
-            /*
-            // Обрабатываем столкновения
-            if(typeof planesArray[myID] != undefined) {
-                if (
-                    i != myID
-                    && planesArray[myID].x <= (planesArray[i].x + planesArray[i].width)
-                    && planesArray[i].x <= (planesArray[myID].x + planesArray[myID].width)
-                    && planesArray[myID].y <= (planesArray[i].y + planesArray[i].width)
-                    && planesArray[i].y <= (planesArray[myID].y + planesArray[myID].width)
-                ) {
-                    // Тут код для обработки столкновений
-                }
-            }
-            */
         }
 
+        // Рисуем пули выпущенные из своего самолёта
         for(var i in myBulletsArray) {
             ctx.beginPath();
             ctx.arc(myBulletsArray[i].x, myBulletsArray[i].y, 2, 0, Math.PI * 2);
@@ -125,6 +118,8 @@ socket.on('connect', function () {
             ctx.fill();
             ctx.stroke();
         }
+
+        // Рисуем пули выпущенные из чужих самолётов
         for(var i in otherBulletsArray) {
             ctx.beginPath();
             ctx.arc(otherBulletsArray[i].x, otherBulletsArray[i].y, 2, 0, Math.PI * 2);
@@ -139,12 +134,20 @@ socket.on('connect', function () {
             oldCount = planesCount;
         }
         
-        // Score
+        // Выводим кол-во игроков
         ctx.fillStyle = "rgb(250, 250, 250)";
         ctx.font = "24px Helvetica";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         ctx.fillText("Players: " + planesCount , 32, 32);
+
+        if(typeof planesArray[myID] === 'undefined' && youDead) {
+            ctx.fillStyle = "rgb(250, 250, 250)";
+            ctx.font = "60px Helvetica";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.fillText("YOU DEAD !", canvas.width/2, canvas.height/2);
+        }
     }
     
     // Update game objects
