@@ -148,10 +148,10 @@ socket.on('connect', function () {
             }
 
             if(plane[myID].angle < 0)
-                plane[myID].angle = 360 + plane[myID].angle;
+                plane[myID].angle = plane[myID].angle + 360;
 
             if(plane[myID].angle >= 360)
-                plane[myID].angle = 360 - plane[myID].angle;
+                plane[myID].angle = plane[myID].angle - 360;
 
             plane[myID].y -= plane[myID].speed * modifier * Math.sin(plane[myID].angle * Math.PI / 180);
             plane[myID].x -= plane[myID].speed * modifier * Math.cos(plane[myID].angle * Math.PI / 180);
