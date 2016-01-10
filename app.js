@@ -42,7 +42,7 @@ io.sockets.on('connection', function (client) {
         delete clients[id];
     });
     client.on('disconnect', function () {
-        client.broadcast.emit('client plane explode', client.id);
+        client.broadcast.emit('client plane delete', client.id);
         console.log('Client "' + clients[client.id] + '" disconnected.');
         delete clients[client.id];
     });
