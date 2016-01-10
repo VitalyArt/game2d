@@ -19,13 +19,14 @@ socket.on('connect', function () {
 
     });
 
-    $(window).on('planesCountChange', function(event, plane){
+    // Ловим событие изменения количества игроков
+    $(window).on('planesCountChange', function(event, planesArray) {
         var planesCount = 0;
         var li = '';
 
-        for(var i in plane) {
+        for(var i in planesArray) {
             ++planesCount;
-            li = li + '<li><a href="#"><i class="fa fa-users text-aqua"></i> ' + plane[i].name + '</a></li>';  
+            li = li + '<li><a href="#"><i class="fa fa-users text-aqua"></i> ' + planesArray[i].name + '</a></li>';  
         }
 
         if(planesCount > 0) {

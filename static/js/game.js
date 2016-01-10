@@ -3,8 +3,14 @@ socket.on('connect', function () {
     var canvas = document.getElementById("example");
     var ctx = canvas.getContext('2d');
     
-    // Handle keyboard controls
     var keysDown = {};
+    var bulletsArray = {};
+    var bulletsCount = 0;
+    var bulletLast = 0;
+    var planesArray = {};
+    var myID = '';
+    var planesCount = 0;
+    var oldCount = 0;
 
     addEventListener("keydown", function (e) {
         keysDown[e.keyCode] = true;
@@ -21,20 +27,20 @@ socket.on('connect', function () {
     var bgImage = new Image();
     var planeImage = new Image();
     
-    planeImage.onload = function () {planeReady = true;};
-    bgImage.onload = function () {bgReady = true;};
+    planeImage.onload = function () {
+        planeReady = true;
+    };
+
+    bgImage.onload = function () {
+        bgReady = true;
+    };
     
     bgImage.src = "images/background.png";
     planeImage.src = "images/plane.png";
     
-    var plane = {};
-    var myID = '';
-    var planesCount = 0;
-    var oldCount = 0;
-    
     socket.on('auth', function (id) {
         myID = id;
-        plane[myID] = {
+        planesArray[myID] = {
             name: username,
             speed: 256, // movement in pixels per second
             angle: 0,
@@ -43,12 +49,12 @@ socket.on('connect', function () {
             width: 226/4,
             height: 94/4
         };
-        socket.emit('updateServer', plane[myID]);
+        socket.emit('updateServer', planesArray[myID]);
     });
     socket.on('updateClient', function (data) {
-        plane[data.id] = {
+        planesArray[data.id] = {
             name: data.name,
-            speed: 256, // movement in pixels per second
+            speed: data.speed, // movement in pixels per second
             angle: data.angle,
             x: data.x,
             y: data.y,
@@ -58,7 +64,7 @@ socket.on('connect', function () {
     });
     
     socket.on('delPlane', function (id) {
-        delete plane[id];
+        delete planesArray[id];
     });
     
     function render() {
@@ -69,7 +75,7 @@ socket.on('connect', function () {
             ctx.drawImage(bgImage, 0, 0);
         }
         
-        for(var i in plane) {
+        for(var i in planesArray) {
             ++planesCount;
 
             if (planeReady) {
@@ -78,31 +84,40 @@ socket.on('connect', function () {
                 ctx.font = "16px Helvetica";
                 ctx.textAlign = "left";
                 ctx.textBaseline = "top";
-                ctx.fillText(plane[i].name, plane[i].x, plane[i].y - plane[i].width/2);
-                ctx.translate(plane[i].x + plane[i].width/2, plane[i].y + plane[i].height/2);
-                ctx.rotate(plane[i].angle * Math.PI/180);
-                ctx.drawImage(planeImage, -(plane[i].width/2), -(plane[i].height/2), plane[i].width, plane[i].height);
+                ctx.fillText(planesArray[i].name, planesArray[i].x, planesArray[i].y - planesArray[i].width/2);
+                ctx.translate(planesArray[i].x + planesArray[i].width/2, planesArray[i].y + planesArray[i].height/2);
+                ctx.rotate(planesArray[i].angle * Math.PI/180);
+                ctx.drawImage(planeImage, -(planesArray[i].width/2), -(planesArray[i].height/2), planesArray[i].width, planesArray[i].height);
                 ctx.restore();
             }
-            
+
             /*
             // Обрабатываем столкновения
-            if(typeof plane[myID] != undefined) {
+            if(typeof planesArray[myID] != undefined) {
                 if (
                     i != myID
-                    && plane[myID].x <= (plane[i].x + plane[i].width)
-                    && plane[i].x <= (plane[myID].x + plane[myID].width)
-                    && plane[myID].y <= (plane[i].y + plane[i].width)
-                    && plane[i].y <= (plane[myID].y + plane[myID].width)
+                    && planesArray[myID].x <= (planesArray[i].x + planesArray[i].width)
+                    && planesArray[i].x <= (planesArray[myID].x + planesArray[myID].width)
+                    && planesArray[myID].y <= (planesArray[i].y + planesArray[i].width)
+                    && planesArray[i].y <= (planesArray[myID].y + planesArray[myID].width)
                 ) {
                     // Тут код для обработки столкновений
                 }
             }
             */
         }
+
+        for(var i in bulletsArray) {
+            ctx.beginPath();
+            ctx.arc(bulletsArray[i].x, bulletsArray[i].y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+            ctx.stroke();
+        }
         
+        // Вызываем событие при изменении количества игроков
         if(oldCount != planesCount) {
-            $(window).trigger('planesCountChange', plane);
+            $(window).trigger('planesCountChange', planesArray);
             oldCount = planesCount;
         }
         
@@ -116,55 +131,68 @@ socket.on('connect', function () {
     
     // Update game objects
     var update = function (modifier) {
-        if(plane[myID] !== undefined) {
+        if(planesArray[myID] !== undefined) {
             // Если самолет залетел за левую границу
-            if(plane[myID].x < -plane[myID].width)
-                plane[myID].x = canvas.width;
+            if(planesArray[myID].x < -planesArray[myID].width)
+                planesArray[myID].x = canvas.width;
 
             // Если самолет залетел за правую границу
-            if(plane[myID].x > canvas.width + plane[myID].width)
-                plane[myID].x = -plane[myID].width;
+            if(planesArray[myID].x > canvas.width + planesArray[myID].width)
+                planesArray[myID].x = -planesArray[myID].width;
 
             // Если самолет залетел за нижнюю границу
-            if(plane[myID].y < -plane[myID].height)
-                plane[myID].y = canvas.height;
+            if(planesArray[myID].y < -planesArray[myID].height)
+                planesArray[myID].y = canvas.height;
 
             // Если самолет залетел за верхнюю границу
-            if(plane[myID].y > canvas.height + plane[myID].height)
-                plane[myID].y = -plane[myID].height;
+            if(planesArray[myID].y > canvas.height + planesArray[myID].height)
+                planesArray[myID].y = -planesArray[myID].height;
 
-            if (38 in keysDown) { // Player holding up
-                plane[myID].y -= plane[myID].speed * modifier;
+            // Стреляем по нажатию на пробел
+            if (32 in keysDown) {
+                if(Date.now() - bulletLast > 200) {
+                    var x = planesArray[myID].x + planesArray[myID].width/2 - (planesArray[myID].width - 6)/2*Math.cos(planesArray[myID].angle * Math.PI / 180);
+                    var y = planesArray[myID].y + planesArray[myID].height/2 - (planesArray[myID].height + 24)/2*Math.sin(planesArray[myID].angle * Math.PI / 180);
+                    bulletsArray[bulletsCount++] = {
+                        speed: 1024,
+                        angle: planesArray[myID].angle,
+                        x: x,
+                        y: y
+                    };
+                    bulletLast = Date.now();
+                }
             }
-            if (40 in keysDown) { // Player holding down
-                plane[myID].y += plane[myID].speed * modifier;
+            if (37 in keysDown) { // Обрабатываем нажатия на левую стрелку
+                planesArray[myID].angle -= 0.8 * planesArray[myID].speed * modifier;
             }
-            if (37 in keysDown) { // Player holding left
-                plane[myID].angle -= 0.8 * plane[myID].speed * modifier;
-            }
-            if (39 in keysDown) { // Player holding right
-                plane[myID].angle += 0.8 * plane[myID].speed * modifier;
-                //plane[i].x += plane[i].speed * modifier;
+            if (39 in keysDown) { // Обрабатываем нажатия на правую стрелку
+                planesArray[myID].angle += 0.8 * planesArray[myID].speed * modifier;
             }
 
-            if(plane[myID].angle < 0)
-                plane[myID].angle = plane[myID].angle + 360;
+            if(planesArray[myID].angle < 0)
+                planesArray[myID].angle = planesArray[myID].angle + 360;
 
-            if(plane[myID].angle >= 360)
-                plane[myID].angle = plane[myID].angle - 360;
+            if(planesArray[myID].angle >= 360)
+                planesArray[myID].angle = planesArray[myID].angle - 360;
 
-            plane[myID].y -= plane[myID].speed * modifier * Math.sin(plane[myID].angle * Math.PI / 180);
-            plane[myID].x -= plane[myID].speed * modifier * Math.cos(plane[myID].angle * Math.PI / 180);
+            planesArray[myID].y -= planesArray[myID].speed * modifier * Math.sin(planesArray[myID].angle * Math.PI / 180);
+            planesArray[myID].x -= planesArray[myID].speed * modifier * Math.cos(planesArray[myID].angle * Math.PI / 180);
 
             data = {
                 speed: 256, // movement in pixels per second
-                angle: plane[myID].angle,
-                x: plane[myID].x,
-                y: plane[myID].y,
-                width: plane[myID].width,
-                height: plane[myID].height
+                angle: planesArray[myID].angle,
+                x: planesArray[myID].x,
+                y: planesArray[myID].y,
+                width: planesArray[myID].width,
+                height: planesArray[myID].height
             };
             socket.emit('updateServer', data);
+        }
+
+        // Обнавляем информацию о пулях
+        for(var i in bulletsArray) {
+            bulletsArray[i].y -= bulletsArray[i].speed * modifier * Math.sin(bulletsArray[i].angle * Math.PI / 180);
+            bulletsArray[i].x -= bulletsArray[i].speed * modifier * Math.cos(bulletsArray[i].angle * Math.PI / 180);
         }
     };
     

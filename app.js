@@ -19,7 +19,7 @@ io.sockets.on('connection', function (client) {
         data = {
             id: client.id,
             name: clients[client.id],
-            speed: 256, // movement in pixels per second
+            speed: message.speed, // movement in pixels per second
             angle: message.angle,
             x: message.x,
             y: message.y,
