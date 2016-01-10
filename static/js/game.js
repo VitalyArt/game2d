@@ -219,9 +219,11 @@ socket.on('connect', function () {
                     && planesArray[plane].y <= (myBulletsArray[bullet].y + 4)
                 ) {
                     // UPD: Желательно ещё учитывать угол наклона самолёта
-                    console.log('Вы убили ' + planesArray[plane].name);
-                    socket.emit('server plane explode', plane);
-                    delete planesArray[plane];
+                    if(plane != myID) {
+                        console.log('Вы убили ' + planesArray[plane].name);
+                        socket.emit('server plane explode', plane);
+                        delete planesArray[plane];
+                    }
                 }
             }
         }
