@@ -15,27 +15,29 @@ var io = require('socket.io').listen(server, options);
 app.use('/', express.static(__dirname + '/static'));
 
 io.sockets.on('connection', function (client) { 
-    client.on('updateServer', function (message) {
+    client.on('server plane update', function (message) {
         data = {
             id: client.id,
             name: clients[client.id],
-            speed: message.speed, // movement in pixels per second
+            speed: message.speed,
             angle: message.angle,
             x: message.x,
             y: message.y,
             width: message.width,
             height: message.height
         };
-        client.broadcast.emit('updateClient', data);
+        client.broadcast.emit('client plane update', data);
     });
-    
-    client.on('auth', function (name) {
+    client.on('server player login', function (name) {
         clients[client.id] = name;
-        client.emit('auth', client.id);
+        client.emit('client player login', client.id);
         console.log('Client "' + name + '" connected.');
     });
+    client.on('server bullet update', function (bullet) {
+        client.broadcast.emit('client bullet update', bullet);
+    });
     client.on('disconnect', function () {
-        client.broadcast.emit('delPlane', client.id);
+        client.broadcast.emit('client plane delete', client.id);
         console.log('Client "' + clients[client.id] + '" disconnected.');
         delete clients[client.id];
     });

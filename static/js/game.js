@@ -4,9 +4,11 @@ socket.on('connect', function () {
     var ctx = canvas.getContext('2d');
     
     var keysDown = {};
-    var bulletsArray = {};
-    var bulletsCount = 0;
-    var bulletLast = 0;
+    var myBulletsArray = {};
+    var myBulletsCount = 0;
+    var myBulletLast = 0;
+    var otherBulletsArray = {};
+    var otherBulletsCount = 0;
     var planesArray = {};
     var myID = '';
     var planesCount = 0;
@@ -38,7 +40,7 @@ socket.on('connect', function () {
     bgImage.src = "images/background.png";
     planeImage.src = "images/plane.png";
     
-    socket.on('auth', function (id) {
+    socket.on('client player login', function (id) {
         myID = id;
         planesArray[myID] = {
             name: username,
@@ -48,10 +50,13 @@ socket.on('connect', function () {
             y: 0,
             width: 226/4,
             height: 94/4
-        };
-        socket.emit('updateServer', planesArray[myID]);
+        };                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        socket.emit('server plane update', planesArray[myID]);
     });
-    socket.on('updateClient', function (data) {
+    socket.on('client bullet update', function (bullet) {
+        otherBulletsArray[otherBulletsCount++] = bullet;
+    });
+    socket.on('client plane update', function (data) {
         planesArray[data.id] = {
             name: data.name,
             speed: data.speed, // movement in pixels per second
@@ -63,7 +68,7 @@ socket.on('connect', function () {
         };
     });
     
-    socket.on('delPlane', function (id) {
+    socket.on('client plane delete', function (id) {
         delete planesArray[id];
     });
     
@@ -107,9 +112,16 @@ socket.on('connect', function () {
             */
         }
 
-        for(var i in bulletsArray) {
+        for(var i in myBulletsArray) {
             ctx.beginPath();
-            ctx.arc(bulletsArray[i].x, bulletsArray[i].y, 2, 0, Math.PI * 2);
+            ctx.arc(myBulletsArray[i].x, myBulletsArray[i].y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = 'black';
+            ctx.fill();
+            ctx.stroke();
+        }
+        for(var i in otherBulletsArray) {
+            ctx.beginPath();
+            ctx.arc(otherBulletsArray[i].x, otherBulletsArray[i].y, 2, 0, Math.PI * 2);
             ctx.fillStyle = 'black';
             ctx.fill();
             ctx.stroke();
@@ -150,16 +162,18 @@ socket.on('connect', function () {
 
             // Стреляем по нажатию на пробел
             if (32 in keysDown) {
-                if(Date.now() - bulletLast > 200) {
+                if(Date.now() - myBulletLast > 200) {
                     var x = planesArray[myID].x + planesArray[myID].width/2 - (planesArray[myID].width - 6)/2*Math.cos(planesArray[myID].angle * Math.PI / 180);
                     var y = planesArray[myID].y + planesArray[myID].height/2 - (planesArray[myID].height + 24)/2*Math.sin(planesArray[myID].angle * Math.PI / 180);
-                    bulletsArray[bulletsCount++] = {
+                    myBulletsArray[myBulletsCount++] = {
+                        player: myID,
                         speed: 1024,
                         angle: planesArray[myID].angle,
                         x: x,
                         y: y
                     };
-                    bulletLast = Date.now();
+                    socket.emit('server bullet update', myBulletsArray[myBulletsCount-1]);
+                    myBulletLast = Date.now();
                 }
             }
             if (37 in keysDown) { // Обрабатываем нажатия на левую стрелку
@@ -186,13 +200,29 @@ socket.on('connect', function () {
                 width: planesArray[myID].width,
                 height: planesArray[myID].height
             };
-            socket.emit('updateServer', data);
+            socket.emit('server plane update', data);
         }
 
         // Обнавляем информацию о пулях
-        for(var i in bulletsArray) {
-            bulletsArray[i].y -= bulletsArray[i].speed * modifier * Math.sin(bulletsArray[i].angle * Math.PI / 180);
-            bulletsArray[i].x -= bulletsArray[i].speed * modifier * Math.cos(bulletsArray[i].angle * Math.PI / 180);
+        for(var bullet in myBulletsArray) {
+            myBulletsArray[bullet].y -= myBulletsArray[bullet].speed * modifier * Math.sin(myBulletsArray[bullet].angle * Math.PI / 180);
+            myBulletsArray[bullet].x -= myBulletsArray[bullet].speed * modifier * Math.cos(myBulletsArray[bullet].angle * Math.PI / 180);
+            // Обрабатываем попадания пулей            
+            for(var plane in planesArray) {
+                if (
+                       myBulletsArray[bullet].x <= (planesArray[plane].x + planesArray[plane].width)
+                    && myBulletsArray[bullet].y <= (planesArray[plane].y + planesArray[plane].width)
+                    && planesArray[plane].x <= (myBulletsArray[bullet].x + 4)
+                    && planesArray[plane].y <= (myBulletsArray[bullet].y + 4)
+                ) {
+                    // UPD: Желательно ещё учитывать угол наклона самолёта
+                    console.log('Вы убили ' + planesArray[plane].name);
+                }
+            }
+        }
+        for(var i in otherBulletsArray) {
+            otherBulletsArray[i].y -= otherBulletsArray[i].speed * modifier * Math.sin(otherBulletsArray[i].angle * Math.PI / 180);
+            otherBulletsArray[i].x -= otherBulletsArray[i].speed * modifier * Math.cos(otherBulletsArray[i].angle * Math.PI / 180);
         }
     };
     

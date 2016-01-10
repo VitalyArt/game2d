@@ -1,12 +1,12 @@
 // Connect client
 socket.on('connect', function () {
-    $('#submit').on('click', function(){
+    $('#submit').on('click', function() {
         username = $('input#username').val();
-        socket.emit('auth', username);
+        socket.emit('server player login', username);
     });
 
     // Auth client
-    socket.on('auth', function (id) {
+    socket.on('client player login', function (id) {
         myID = id;
 
         $('.sidebar-form').hide();
@@ -15,7 +15,7 @@ socket.on('connect', function () {
     });
 
     // Disconnect client
-    socket.on('delPlane', function (id) {
+    socket.on('client plane delete', function (id) {
 
     });
 
