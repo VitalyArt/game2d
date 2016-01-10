@@ -4,9 +4,8 @@
 Install game
 ```sh
 git clone https://github.com/VitalyArt/game2d.git
-npm install http
-npm install express
-npm install socket.io
+cd game2d
+npm install
 ```
 Open app.js and change the line
 ```js
