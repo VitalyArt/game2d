@@ -1,5 +1,6 @@
 # 2D Game Plane (Multiplayer)
 ###https://game2d.herokuapp.com/
+![alt tag](http://oi66.tinypic.com/2hhd5l2.jpg)
 
 Install game
 ```sh
